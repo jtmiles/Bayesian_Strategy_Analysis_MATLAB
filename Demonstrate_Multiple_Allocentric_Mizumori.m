@@ -10,12 +10,12 @@
 
 clearvars; close all;
 
-addpath Strategy_models/        % must add this path to access strategy models
-addpath Functions/              % must add this path to access functions that implement analysis
+addpath Strategy_models\        % must add this path to access strategy models
+addpath Functions\              % must add this path to access functions that implement analysis
 
 % load data into a Table - strategy models will use variable names stored with Table to
 % access each column's data
-testData = readtable('Processed_data\Peyrache_Rat2_data.csv','TextType','string');
+testData = readtable('Processed_data\2022-04-19_793_strat_table.csv','TextType','string');
 
 %% choose strategies to evaluate
 % list of function names in Strategy_models/ folder - runs all of them to

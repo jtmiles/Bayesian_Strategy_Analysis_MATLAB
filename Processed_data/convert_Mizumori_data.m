@@ -19,7 +19,7 @@
 % SessionIndex - integer that identifies session
 % TargetRule - string specifying current contingency
 % Choice - 'left' or 'right' (may change to East or West')
-% CuePosition - ... leaving out b/c it would just be nans
+% CuePosition - ... no cues in our data, so just nans
 % Reward - 'yes' or 'no'
 % RuleChangeTrials - 1 if contingency changes on that trial, else 0
 % NewSessionTrials - 1 when SessionIndex increments, else 0
@@ -34,7 +34,7 @@
 % JTM - 2022-09-21
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+clearvars
 [bfile, floc] = uigetfile('behav.txt', 'Pick *behav.txt file');
 beh_data = readtable([floc,bfile]); 
 bcols = {'trial','block','block_trial','correct_arm','outcome',...
@@ -62,7 +62,6 @@ for b = 1:max(beh_data.block)
 end %for
 save_data.TargetRule = TargetRule;
 
-%%
 % designate "left" vs. "right" choices
 choice = strings(numel(beh_data.trial),1);
 lefts = beh_data.start_arm-beh_data.chosen_arm~=1;
@@ -82,16 +81,32 @@ reward = strings(numel(beh_data.trial),1);
 reward(beh_data.outcome==1) = "yes";
 reward(beh_data.outcome==0) = "no";
 save_data.Reward = reward;
+
+% add some meta data
+% designate when a rule/task contingency changes
+% For Mizumori lab data, this is the beginning of a "block"
 rulechanges = zeros(numel(beh_data.trial),1);
 rulechanges(beh_data.block_trial==1) = 1;
 save_data.RuleChangeTrials = string(rulechanges);
 
+% add NewSessionTrials column
+new_session = zeros(numel(beh_data.trial),1);
+new_session(1) = 1;
+save_data.NewSessionTrials = string(new_session);
+
+% adding placeholder CuePosition nan column (no explicit cues in our data)
+save_data.CuePosition = nan(numel(beh_data.trial),1);
+
 %% parse filename, re-config into mm-dd-yyy_ID, save table as CSV
+
 [~, d_end] = regexp(bfile, '((\d)-\d{4})');
 date = datestr(bfile(1:(d_end)),'yyyy-mm-dd');
 [~,str_end] = regexp(bfile, '([A-Z]{2}-[A-Za-z]{2,3}-)');
 rat_ID = bfile(str_end+1:str_end+3);
+if isempty(date)
+    date = datestr(bfile(1:10),'yyyy-mm-dd');
+end
 save_str = [date,'_',rat_ID,'_','strat_table.csv']
-cd('G:\Shared drives\Mizumori Lab\strategy_switching\behavior_data\strat_tables')
+cd('C:\Users\jesse\Documents\GitHub\Bayesian_Strategy_Analysis_MATLAB\Processed_data')
 writetable(save_data,save_str)
 % 
