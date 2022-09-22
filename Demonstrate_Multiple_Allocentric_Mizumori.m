@@ -11,10 +11,9 @@
 % Updated file that handles Mizumori lab data
 % Jesse Miles Sept. 21, 2022
 
-clearvars; close all;
-
 addpath Strategy_models\        % must add this path to access strategy models
 addpath Functions\              % must add this path to access functions that implement analysis
+clearvars; close all;
 
 % load data into a Table - strategy models will use variable names stored with Table to
 % access each column's data
@@ -24,7 +23,8 @@ testData = readtable([floc, bfile],'TextType','string');
 %% choose strategies to evaluate
 % list of function names in Strategy_models/ folder - runs all of them to
 % check they work...
-strategies = ["go_east", "go_west", "alternate"];
+strategies = ["go_east", "go_west", "alternate_allo",...
+              "lose_shift_spatial_allo", "win_stay_spatial_allo"];
 
 %% choose type of prior
 prior_type = "Uniform";
@@ -83,7 +83,7 @@ hold on;
 plot(Output.go_east.MAPprobability,'Color',[0.8 0.6 0.5]);
 % plot(Output.go_right.MAPprobability,'Color',[0.4 0.8 0.5]);
 plot(Output.go_west.MAPprobability,'Color',[0.1 0.4 0.9]);
-plot(Output.alternate.MAPprobability,'Color',[0.2 0.2 0.2]);
+plot(Output.alternate_allo.MAPprobability,'Color',[0.2 0.2 0.2]);
 plotSessionStructure(gca,number_of_trials,new_session_trials,rule_change_trials,sequence_of_rules)
 line([1,number_of_trials],[0.5 0.5],'Color',[0.7 0.7 0.7]) % chance
 xlabel('Trials'); ylabel('P(strategy)')
@@ -93,18 +93,13 @@ legend(strLabel,'Location','northeastoutside','Box','off')
 hold off
 
 %% explore strategies...
-% figure('Units', 'centimeters', 'PaperPositionMode', 'auto','Position',[10 15 20 9]);
-% plotSessionStructure(gca,number_of_trials,new_session_trials,rule_change_trials,sequence_of_rules); hold on
-% % line([1,number_of_trials],[0.5 0.5],'Color',[0.7 0.7 0.7]) % chance
-% plot(Output.win_stay_cued.MAPprobability,'o','Color',[0.7 0.4 0.7]);
-% plot(Output.lose_shift_cued.MAPprobability,'o','Color',[0.7 0.7 0.7]);
-% plot(Output.win_stay_spatial.MAPprobability,'o','Color',[0.4 0.8 0.5]); 
-% plot(Output.lose_shift_spatial.MAPprobability,'o','Color',[0.8 0.6 0.5]);
-% 
-% xlabel('Trials'); ylabel('P(strategy)')
-% strLabel = {'win-stay-cued','lose-shift-cued','win-stay-spatial','lose-shift-spatial'};
-% t = text([400,400,400,400],[0.8,0.7,0.6,0.5],strLabel);
-% t(1).Color = [0.7 0.4 0.7];
-% t(2).Color = [0.7 0.7 0.7];
-% t(3).Color = [0.4 0.8 0.5];
-% t(4).Color = [0.8 0.6 0.5];
+figure('Units', 'centimeters', 'PaperPositionMode', 'auto','Position',[10 15 20 9]);
+hold on
+plot(Output.win_stay_spatial_allo.MAPprobability,'o','Color',[0.4 0.8 0.5]); 
+plot(Output.lose_shift_spatial_allo.MAPprobability,'o','Color',[0.8 0.6 0.5]);
+plotSessionStructure(gca,number_of_trials,new_session_trials,rule_change_trials,sequence_of_rules);
+% line([1,number_of_trials],[0.5 0.5],'Color',[0.7 0.7 0.7]) % chance
+xlabel('Trials'); ylabel('P(strategy)')
+strLabel = {'win-stay-spatial','lose-shift-spatial'};
+legend(strLabel,'Location','northeastoutside','Box','off')
+hold off

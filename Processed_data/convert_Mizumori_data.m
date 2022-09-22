@@ -34,8 +34,9 @@
 % JTM - 2022-09-21
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath Processed_data\ 
 clearvars
-addpath Processed_data\        % must add this path to access data processing
+       % must add this path to access data processing
 [bfile, floc] = uigetfile('behav.txt', 'Pick *behav.txt file');
 beh_data = readtable([floc,bfile]); 
 bcols = {'trial','block','block_trial','correct_arm','outcome',...
