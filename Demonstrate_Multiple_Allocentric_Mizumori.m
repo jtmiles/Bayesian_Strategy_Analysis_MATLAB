@@ -30,7 +30,7 @@ strategies = ["go_east", "go_west", "alternate_allo",...
 prior_type = "Uniform";
 
 %% set decay rate: gamma parameter
-decay_rate = 0.9;
+decay_rate = 0.90;
 
 %% define priors
 [alpha0,beta0] = set_Beta_prior(prior_type);
@@ -85,7 +85,7 @@ plot(Output.go_east.MAPprobability,'Color',[0.8 0.6 0.5]);
 plot(Output.go_west.MAPprobability,'Color',[0.1 0.4 0.9]);
 plot(Output.alternate_allo.MAPprobability,'Color',[0.2 0.2 0.2]);
 plotSessionStructure(gca,number_of_trials,new_session_trials,rule_change_trials,sequence_of_rules)
-line([1,number_of_trials],[0.5 0.5],'Color',[0.7 0.7 0.7]) % chance
+% line([1,number_of_trials],[0.5 0.5],'Color',[0.7 0.7 0.7]) % chance
 xlabel('Trials'); ylabel('P(strategy)')
 % strLabel = {'go left','go east','go right','go west','alternate'};
 strLabel = {'go east','go west','alternate'};
