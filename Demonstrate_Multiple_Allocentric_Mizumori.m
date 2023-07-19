@@ -13,11 +13,13 @@
 
 addpath Strategy_models\        % must add this path to access strategy models
 addpath Functions\              % must add this path to access functions that implement analysis
-clearvars; close all;
+% clearvars; 
+close all;
 
 % load data into a Table - strategy models will use variable names stored with Table to
 % access each column's data
-[bfile, floc] = uigetfile('*strat_table.csv', 'Pick *behav.txt file');
+
+[bfile, floc] = uigetfile('*prestrat_table.csv', 'Pick *strat_table file');
 testData = readtable([floc, bfile],'TextType','string');
 
 %% choose strategies to evaluate
@@ -68,7 +70,17 @@ for index_trial = 1:number_of_trials
         Output.(charStrategy).precision(index_trial) = Summaries_of_Beta_distribution(Output.(charStrategy).alpha(index_trial),Output.(charStrategy).beta(index_trial),'Precision');
     end  
 end
-
+% 
+% for index_strategy = 1:number_of_strategies
+%     charStrategy = char(strategies(index_strategy)); % cast as Char for old MATLAB < 2018
+%     % if alpha time-series has any NaNs, then interpolate
+%     if any(isnan(Output.(charStrategy).alpha))
+%         "interpolating"
+%         [Output.(charStrategy).alpha_interpolated,Output.(charStrategy).beta_interpolated,...
+%             Output.(charStrategy).MAPprob_interpolated,Output.(charStrategy).precision_interpolated] = ...
+%             interpolate_null_trials(Output.(charStrategy).alpha,Output.(charStrategy).beta,alpha0,beta0);
+%     end
+% end
 %% plot time-series of MAP probability estimates and precision
 
 new_session_trials = find(testData.NewSessionTrials);

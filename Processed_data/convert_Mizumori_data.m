@@ -34,9 +34,7 @@
 % JTM - 2022-09-21
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-addpath Processed_data\ 
-clearvars
-       % must add this path to access data processing
+% clearvars
 [bfile, floc] = uigetfile('behav.txt', 'Pick *behav.txt file');
 beh_data = readtable([floc,bfile]); 
 bcols = {'trial','block','block_trial','correct_arm','outcome',...
@@ -108,7 +106,9 @@ rat_ID = bfile(str_end+1:str_end+3);
 if isempty(date)
     date = datestr(bfile(1:10),'yyyy-mm-dd');
 end
-save_str = [date,'_',rat_ID,'_','strat_table.csv']
-cd('C:\Users\jesse\Documents\GitHub\Bayesian_Strategy_Analysis_MATLAB\Processed_data')
+cd(floc)
+dloc = uigetdir('Pick save location');
+cd(dloc)
+save_str = [date,'_',rat_ID,'_','prestrat_table.csv']
+% cd('C:\Users\jesse\Documents\GitHub\Bayesian_Strategy_Analysis_MATLAB\Processed_data')
 writetable(save_data,save_str)
-% 
