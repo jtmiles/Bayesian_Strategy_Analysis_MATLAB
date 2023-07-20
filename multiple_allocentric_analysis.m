@@ -24,9 +24,6 @@ function Output = multiple_allocentric_analysis(converted_data, varargin)
 %%%%    data to help smooth the initial likelihood estimates in the 
 %%%%    session if a second argument isn't give, no trials will be added
 
-addpath Strategy_models\ % must add this path to access strategy models
-addpath Functions\       % must add this path to access analysis functions
-
 % check for varargin
 if length(varargin) == 1 
 
