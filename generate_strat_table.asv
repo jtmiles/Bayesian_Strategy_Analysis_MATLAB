@@ -72,22 +72,19 @@ for f_ix = 1:numel(bfiles)
     try
         trial_table = gen_strat_fig(all_data,strats);
         trial_table.phase(ismissing(trial_table.phase)) = "perseverate";
+        flex = [nan;sum(abs(diff(table2array(trial_table(:,strats)),1,1)),2)];
+        trial_table.flex = flex;
     catch
-        warning("Couldn't plot full figure, trial phases unresolved")
+        warning("Couldn't plot full figure, trial phases nt")
         figure, plot(all_data,"trial",strats)
         xlim([min(all_data.trial) max(all_data.trial)])
         hold on
         % vertical lines at block starts (vline if you have it in your path)
         plot([all_data.trial(all_data.trial_in_block==1), all_data.trial(all_data.trial_in_block==1)]',...
         repmat([0 1],sum(all_data.trial_in_block==1),1)','k:','LineWidth',2)
-        trial_table = all_data;
+        trial_table = all_data
     end
     
-    % compute flexibility score from strategy likelihoods
-    flex = [nan;sum(abs(diff(table2array(trial_table(:,strats)),1,1)),2)];
-    trial_table.flex = flex;
-    
-    % add a column with session ID (ratID_yyyy-mm-dd)
     [~,id_end] = regexp(fname, "([a-zA-Z]{2}-\d{3})");
     r_id = fname(id_end-2:id_end);
     [~,id_end] = regexp(fname, "(20\d{2})");
