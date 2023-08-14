@@ -1,8 +1,10 @@
-%% Convert to Maggi et al. format
+function converted_data = convert_behav_data(beh_data)
+% Convert to Maggi et al. format
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Load in *behav.txt of Mizumori lab strategy switching data and convert it
-% to format that can be analyzed by Maggi et al. 2022 for trial-by-trial 
-% analysis of strategy usage
+%
+% Use data from *behav.txt file Mizumori lab strategy switching task and 
+% convert it to format that can be analyzed by Maggi et al. 2022 for
+% trial-by-trial analysis of strategy usage
 %
 %%%% Current format (columns, unlabeled in .txt file):
 % trial - double, increments each trial
@@ -32,18 +34,15 @@
 % "Choice" column
 %
 % JTM - 2022-09-21
-%
+% reformatted as function 2023-07-19
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clearvars
-[bfile, floc] = uigetfile('behav.txt', 'Pick *behav.txt file');
-beh_data = readtable([floc,bfile]); 
+
 bcols = {'trial','block','block_trial','correct_arm','outcome',...
          'start_arm','chosen_arm','delay'};
 beh_data.Properties.VariableNames = bcols;
 
-%%
-save_data = table();
-save_data.TrialIndex = string(beh_data.trial);
+converted_data = table();
+converted_data.TrialIndex = string(beh_data.trial);
 % save_data.SessionIndex = nan(numel(beh_data.trial),1);
 % create TargetRule vector
 % possible options are - East, West, Alternate
@@ -60,7 +59,7 @@ for b = 1:max(beh_data.block)
         TargetRule(b_ts) = "Alternate";
     end %if
 end %for
-save_data.TargetRule = TargetRule;
+converted_data.TargetRule = TargetRule;
 
 % designate "left" vs. "right" choices
 choice = strings(numel(beh_data.trial),1);
@@ -68,47 +67,32 @@ lefts = beh_data.start_arm-beh_data.chosen_arm~=1;
 choice(lefts) = "left";
 rights = beh_data.start_arm-beh_data.chosen_arm==1;
 choice(rights) = "right";
-save_data.Choice = choice;
+converted_data.Choice = choice;
 
 % add column with location rat chose (East vs. West)
 location = strings(numel(beh_data.trial),1);
 location(beh_data.chosen_arm==0) = "West";
 location(beh_data.chosen_arm==2) = "East";
-save_data.Location = location;
+converted_data.Location = location;
 
 % designate outcome as yes/no instead of 1/0, respectively
 reward = strings(numel(beh_data.trial),1);
 reward(beh_data.outcome==1) = "yes";
 reward(beh_data.outcome==0) = "no";
-save_data.Reward = reward;
+converted_data.Reward = reward;
 
 % add some meta data
 % designate when a rule/task contingency changes
 % For Mizumori lab data, this is the beginning of a "block"
 rulechanges = zeros(numel(beh_data.trial),1);
 rulechanges(beh_data.block_trial==1) = 1;
-save_data.RuleChangeTrials = string(rulechanges);
+converted_data.RuleChangeTrials = string(rulechanges);
 
 % add NewSessionTrials column
 new_session = zeros(numel(beh_data.trial),1);
 new_session(1) = 1;
-save_data.NewSessionTrials = string(new_session);
+converted_data.NewSessionTrials = string(new_session);
 
 % adding placeholder CuePosition nan column (no explicit cues in our data)
-save_data.CuePosition = nan(numel(beh_data.trial),1);
-
-%% parse filename, re-config into mm-dd-yyy_ID, save table as CSV
-
-[~, d_end] = regexp(bfile, '((\d)-\d{4})');
-date = datestr(bfile(1:(d_end)),'yyyy-mm-dd');
-[~,str_end] = regexp(bfile, '([A-Z]{2}-[A-Za-z]{2,3}-)');
-rat_ID = bfile(str_end+1:str_end+3);
-if isempty(date)
-    date = datestr(bfile(1:10),'yyyy-mm-dd');
-end
-cd(floc)
-dloc = uigetdir('Pick save location');
-cd(dloc)
-save_str = [date,'_',rat_ID,'_','prestrat_table.csv']
-% cd('C:\Users\jesse\Documents\GitHub\Bayesian_Strategy_Analysis_MATLAB\Processed_data')
-writetable(save_data,save_str)
+converted_data.CuePosition = nan(numel(beh_data.trial),1);
+ 
