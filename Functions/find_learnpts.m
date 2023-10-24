@@ -7,9 +7,10 @@ function learnpts = find_learnpts(sesh_table,strats)
         strat = strats(strat_ix);
         s_curve = table2array(cur_block(:,strats==strat));
         non_strats = table2array(cur_block(:,strats~=strat));
-        % find the first trial where target strategy becomes most likely
-        learnpt = btrials(find(prod(s_curve>=non_strats,2)>0,1,'first'));
-    
+        % find when target strategy becomes most likely
+        learnpt = btrials(find(sum(s_curve<=non_strats,2)>0,1,'last'));
+%         learnpt = btrials(find(prod(s_curve>=non_strats,2)>0,1,'first'));
+
         % if target strategy starts out as most likely/always most likely
         if isempty(learnpt) || all(prod(s_curve>=non_strats,2))
             % look for max in other strats that occur after target strat's min
