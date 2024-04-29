@@ -2,9 +2,8 @@ function converted_data = convert_behav_data(beh_data)
 % Convert to Maggi et al. format
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Use data from *behav.txt file Mizumori lab strategy switching task and 
-% convert it to format that can be analyzed by Maggi et al. 2022 for
-% trial-by-trial analysis of strategy usage
+% Convert data from ePrime set shifting task to format that can be analyzed
+% by Maggi et al. 2022 for trial-by-trial analysis of strategy usage
 %
 %%%% Current format (columns, unlabeled in .txt file):
 % trial - double, increments each trial
