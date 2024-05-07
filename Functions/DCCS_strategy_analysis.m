@@ -1,4 +1,4 @@
-function Output = multiple_allocentric_analysis(converted_data, varargin)
+function Output = DCCS_strategy_analysis(converted_data, varargin)
 
 % function to demonstrate Bayesian strategy analysis of multiple strategies
 % - specify strategues in string array
@@ -11,13 +11,12 @@ function Output = multiple_allocentric_analysis(converted_data, varargin)
 % Mark Humphries 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% JTM updated file to handle allocentric Mizumori lab data, 2022-09-21
+% JTM updated file to handle DCCS Webb/Rea lab data, 2024-05-06
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% JTM updates, 2023-07-19
+% 
+% Ask whether participants chose based on color, shape, or side of screen 
 %
-% made into function
-%
-% added varargin options:
+% varargin options:
 %%%% 1: a string array of strategy types. if not supplied, chooses
 %%%%    several already in the script
 %%%% 2: an integer that specifies number of trials to prepend to 

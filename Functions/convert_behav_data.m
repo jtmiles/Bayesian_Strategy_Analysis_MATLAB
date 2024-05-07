@@ -5,19 +5,18 @@ function converted_data = convert_behav_data(beh_data)
 % Convert data from ePrime set shifting task to format that can be analyzed
 % by Maggi et al. 2022 for trial-by-trial analysis of strategy usage
 %
-%%%% Current format (columns, unlabeled in .txt file):
-% trial - double, increments each trial
-% block - double >=1.0 and <= 4.0
-% block_trial - double, number of trials in the current contingency
-% correct_arm - double, = 0 (West) or 2(East), arm that would be rewarded
-% outcome - double, = 1 if correct arm was chosen, else 0 
-% start_arm - double, = 1 (North) or 3 (South)
-% chosen_arm - double, = 0 (West) or 2 (East), arm rat chose
-% delay - double, duration of delay (in ms)
+%%%% Current format 
+% CSV with a mess of columns for tracking meta data
+% using:
+%%%%%%%% Trial - trial number
+%%%%%%%% cResp - correct response
+%%%%%%%% TestStimulus.RESP - participant's response
+%%%%%%%% TestStimulus_ACC - whether response was correct (1 = yes; 2 = no)
+%%%%%%%% Cue or AudioCue - the target cue to respond to
 %
 %%%% Needs to be:
 % TrialIndex - integer that just counts up for a given table
-% SessionIndex - integer that identifies session
+% SessionIndex - integer that identifies session (*seem not to be using*)
 % TargetRule - string specifying current contingency
 % Choice - 'left' or 'right' (may change to East or West')
 % CuePosition - ... no cues in our data, so just nans
@@ -34,64 +33,86 @@ function converted_data = convert_behav_data(beh_data)
 %
 % JTM - 2022-09-21
 % reformatted as function 2023-07-19
+% branch for GEMs project (Webb/Rea) 2024-04-29
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-bcols = {'trial','block','block_trial','correct_arm','outcome',...
-         'start_arm','chosen_arm','delay'};
-beh_data.Properties.VariableNames = bcols;
+% bcols = ["Trial";"cResp";"TestStimulus.RESP";"TestStimulus_ACC"];
+varnames = beh_data.Properties.VariableNames;
+if any(contains(varnames,"AudioCue"))
+    % rename the old cue variable, which is not the target cue
+    beh_data = renamevars(beh_data,"Cue","XcueX"); 
+    beh_data = renamevars(beh_data,"AudioCue","Cue");
+    % bcols = [bcols;"AudioCue"];
+elseif any(contains(varnames,"Cue"))
+    % WARNING - v2 files also contain "Cue", but it's a different variable!
+    % bcols = [bcols;"Cue"];
+else
+    warning("Did not find a 'Cue' column with expected format")
+end
 
 converted_data = table();
-converted_data.TrialIndex = string(beh_data.trial);
-% save_data.SessionIndex = nan(numel(beh_data.trial),1);
-% create TargetRule vector
-% possible options are - East, West, Alternate
-TargetRule = strings(numel(beh_data.trial),1);
-for b = 1:max(beh_data.block)
-    b_ts = beh_data.block == b;
-    b_cs = beh_data.correct_arm(b_ts);
+mixstart = find(~isnan(beh_data.MixedTrialList),1,"first");
+% converted_data.TrialIndex = string(1+beh_data.Trial-beh_data.Trial(mixstart));
+% converted_data.TrialIndex(1:mixstart-1) = nan;
+% TrialCount_Trial starts counting after the first couple of practices
+converted_data.TrialIndex = beh_data.MixedTrialList(mixstart:end);
 
-    if all(b_cs == 0)
-        TargetRule(b_ts) = "West";
-    elseif all(b_cs == 2)
-        TargetRule(b_ts) = "East";
-    else
-        TargetRule(b_ts) = "Alternate";
-    end %if
-end %for
-converted_data.TargetRule = TargetRule;
+% create TargetRule vector
+% possible options are - 'color' or 'shape'
+TargetRule = strings(height(beh_data),1);
+TargetRule(contains(beh_data.Cue,"shape","IgnoreCase",true)) = "shape";
+TargetRule(contains(beh_data.Cue,"color","IgnoreCase",true)) = "color";
+converted_data.TargetRule = TargetRule(mixstart:end);
 
 % designate "left" vs. "right" choices
-choice = strings(numel(beh_data.trial),1);
-lefts = beh_data.start_arm-beh_data.chosen_arm~=1;
+choice = strings(height(beh_data),1);
+lefts = beh_data.TestStimulus_RESP==1;
 choice(lefts) = "left";
-rights = beh_data.start_arm-beh_data.chosen_arm==1;
+rights = beh_data.TestStimulus_RESP==5;
 choice(rights) = "right";
-converted_data.Choice = choice;
-
-% add column with location rat chose (East vs. West)
-location = strings(numel(beh_data.trial),1);
-location(beh_data.chosen_arm==0) = "West";
-location(beh_data.chosen_arm==2) = "East";
-converted_data.Location = location;
+converted_data.Choice = choice(mixstart:end);
 
 % designate outcome as yes/no instead of 1/0, respectively
-reward = strings(numel(beh_data.trial),1);
-reward(beh_data.outcome==1) = "yes";
-reward(beh_data.outcome==0) = "no";
-converted_data.Reward = reward;
+% (keeping variable name as "reward" for now)
+accuracy = strings(height(beh_data),1);
+accuracy(beh_data.TestStimulus_ACC==1) = "yes";
+accuracy(beh_data.TestStimulus_ACC==0) = "no";
+converted_data.Reward = accuracy(mixstart:end);
 
-% add some meta data
-% designate when a rule/task contingency changes
-% For Mizumori lab data, this is the beginning of a "block"
-rulechanges = zeros(numel(beh_data.trial),1);
-rulechanges(beh_data.block_trial==1) = 1;
-converted_data.RuleChangeTrials = string(rulechanges);
+% designate whether they chose shape
+shape = strings(height(beh_data),1);
+shape(contains(beh_data.Cue,"shape","IgnoreCase",true) & accuracy == "yes") = "yes";
+% shapes and colors are always mismatched, so if they get a color trial
+% wrong it's because they were choosing based on shape
+shape(contains(beh_data.Cue,"color","IgnoreCase",true)  & accuracy == "no") = "yes";
+shape(shape~="yes") = "no";
+converted_data.Shape = shape(mixstart:end);
 
-% add NewSessionTrials column
-new_session = zeros(numel(beh_data.trial),1);
-new_session(1) = 1;
-converted_data.NewSessionTrials = string(new_session);
+% designate "A" vs. "B" for color
+% (no indicator of actual color presented)
+% TO DO:
+% check if this is just the complement of shape ...
+color = strings(height(beh_data),1);
+color(contains(beh_data.Cue,"color","IgnoreCase",true)  & accuracy == "yes") = "yes";
+color(contains(beh_data.Cue,"shape","IgnoreCase",true)  & accuracy == "no") = "yes";
+color(color~="yes") = "no";
+height(color)
+height(converted_data)
+converted_data.Color = color(mixstart:end);
 
-% adding placeholder CuePosition nan column (no explicit cues in our data)
-converted_data.CuePosition = nan(numel(beh_data.trial),1);
+% should not actually need these ...
+% % add some meta data
+% % designate when a rule/task contingency changes
+% % For Mizumori lab data, this is the beginning of a "block"
+% rulechanges = zeros(numel(beh_data.trial),1);
+% rulechanges(beh_data.block_trial==1) = 1;
+% converted_data.RuleChangeTrials = string(rulechanges);
+% 
+% % add NewSessionTrials column
+% new_session = zeros(numel(beh_data.trial),1);
+% new_session(1) = 1;
+% converted_data.NewSessionTrials = string(new_session);
+% 
+% % adding placeholder CuePosition nan column
+% converted_data.CuePosition = nan(numel(beh_data.trial),1);
  
