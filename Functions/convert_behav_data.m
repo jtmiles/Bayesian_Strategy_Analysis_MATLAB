@@ -96,8 +96,6 @@ color = strings(height(beh_data),1);
 color(contains(beh_data.Cue,"color","IgnoreCase",true)  & accuracy == "yes") = "yes";
 color(contains(beh_data.Cue,"shape","IgnoreCase",true)  & accuracy == "no") = "yes";
 color(color~="yes") = "no";
-height(color)
-height(converted_data)
 converted_data.Color = color(mixstart:end);
 
 % should not actually need these ...

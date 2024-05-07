@@ -40,12 +40,13 @@ for iter = 1:niter
     smat(:,:,iter) = cur_mat;
 end
 all_data = array2table(mean(smat,3),"VariableNames",strategies);
-flex = table2array(sum(abs(diff(all_data(:,strategies))),2));
 
 if height(all_data)>height(beh_data) && (exist('npad','var')==1 && npad>0)
     all_data = all_data(npad+1:end,:);
 end
 
+all_data = [beh_data all_data];
+flex = table2array(sum(abs(diff(all_data(:,strategies(1:2)))),2));
 all_data = renamevars(all_data,"TrialIndex","trial");
 all_data.trial = (1:height(all_data))';
 % plot using a "try/catch" which will plot a nice figure if all 4 blocks
@@ -62,6 +63,6 @@ end
 
 figure
 plot(all_data.trial(2:end), flex, Color="k", LineWidth=2)
-ylim([0 0.15]);
-
+ylim([0 0.1]);
+disp(num2str(sum(all_data.Reward=="no"))+" incorrect trials")
 % trial_table = all_data;
