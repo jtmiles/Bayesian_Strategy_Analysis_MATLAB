@@ -6,12 +6,14 @@ function converted_data = convert_behav_data(beh_data)
 % by Maggi et al. 2022 for trial-by-trial analysis of strategy usage
 %
 %%%% Current format 
-% CSV with a mess of columns for tracking meta data
+% CSV with a mess of columns for tracking meta-data
 % using:
 %%%%%%%% Trial - trial number
 %%%%%%%% cResp - correct response
 %%%%%%%% TestStimulus.RESP - participant's response
 %%%%%%%% TestStimulus_ACC - whether response was correct (1 = yes; 2 = no)
+%%%%%%%% Stimulus
+%%%%%%%% MixedTrialList
 %%%%%%%% Cue or AudioCue - the target cue to respond to
 %
 %%%% Needs to be:
@@ -51,18 +53,20 @@ else
 end
 
 converted_data = table();
-mixstart = find(~isnan(beh_data.MixedTrialList),1,"first");
+% mixstart = find(~isnan(beh_data.MixedTrialList),1,"first");
+endpract = contains(string(beh_data.Stimulus),"Prac","IgnoreCase",true);
+tstart = find(endpract,1,"last")+1;
 % converted_data.TrialIndex = string(1+beh_data.Trial-beh_data.Trial(mixstart));
 % converted_data.TrialIndex(1:mixstart-1) = nan;
 % TrialCount_Trial starts counting after the first couple of practices
-converted_data.TrialIndex = beh_data.MixedTrialList(mixstart:end);
+converted_data.TrialIndex = beh_data.MixedTrialList(tstart:end);
 
 % create TargetRule vector
 % possible options are - 'color' or 'shape'
 TargetRule = strings(height(beh_data),1);
 TargetRule(contains(beh_data.Cue,"shape","IgnoreCase",true)) = "shape";
 TargetRule(contains(beh_data.Cue,"color","IgnoreCase",true)) = "color";
-converted_data.TargetRule = TargetRule(mixstart:end);
+converted_data.TargetRule = TargetRule(tstart:end);
 
 % designate "left" vs. "right" choices
 choice = strings(height(beh_data),1);
@@ -70,14 +74,14 @@ lefts = beh_data.TestStimulus_RESP==1;
 choice(lefts) = "left";
 rights = beh_data.TestStimulus_RESP==5;
 choice(rights) = "right";
-converted_data.Choice = choice(mixstart:end);
+converted_data.Choice = choice(tstart:end);
 
 % designate outcome as yes/no instead of 1/0, respectively
 % (keeping variable name as "reward" for now)
 accuracy = strings(height(beh_data),1);
 accuracy(beh_data.TestStimulus_ACC==1) = "yes";
 accuracy(beh_data.TestStimulus_ACC==0) = "no";
-converted_data.Reward = accuracy(mixstart:end);
+converted_data.Reward = accuracy(tstart:end);
 
 % designate whether they chose shape
 shape = strings(height(beh_data),1);
@@ -86,7 +90,7 @@ shape(contains(beh_data.Cue,"shape","IgnoreCase",true) & accuracy == "yes") = "y
 % wrong it's because they were choosing based on shape
 shape(contains(beh_data.Cue,"color","IgnoreCase",true)  & accuracy == "no") = "yes";
 shape(shape~="yes") = "no";
-converted_data.Shape = shape(mixstart:end);
+converted_data.Shape = shape(tstart:end);
 
 % designate "A" vs. "B" for color
 % (no indicator of actual color presented)
@@ -96,7 +100,7 @@ color = strings(height(beh_data),1);
 color(contains(beh_data.Cue,"color","IgnoreCase",true)  & accuracy == "yes") = "yes";
 color(contains(beh_data.Cue,"shape","IgnoreCase",true)  & accuracy == "no") = "yes";
 color(color~="yes") = "no";
-converted_data.Color = color(mixstart:end);
+converted_data.Color = color(tstart:end);
 
 % should not actually need these ...
 % % add some meta data

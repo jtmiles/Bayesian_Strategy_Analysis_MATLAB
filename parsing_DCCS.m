@@ -51,18 +51,25 @@ all_data = renamevars(all_data,"TrialIndex","trial");
 all_data.trial = (1:height(all_data))';
 % plot using a "try/catch" which will plot a nice figure if all 4 blocks
 % are completed and a more basic figure if they aren't. 
-figure, plot(all_data,"trial",strategies,"LineWidth",2)
+figure, hold all, plot(all_data,"trial",strategies,"LineWidth",2)
 xlim([min(all_data.trial) max(all_data.trial)]), ylim([0 1])
 ylabel("Strategy Likelihood"); xlabel("Trial")
-yticks(0.1:0.2:0.9); xticks(5:10:95)
+yticks(0.1:0.2:0.9); xticks(5:10:105)
 cmap = colororder;
 for s = 1:numel(strategies)
     y = table2array(all_data(end,strategies(s)));
-    text(101,y,replace(strategies(s),"pick_"," "),"Color",cmap(s,:))
+    text(111,y,replace(strategies(s),"pick_"," "),"Color",cmap(s,:))
 end
-
-figure
-plot(all_data.trial(2:end), flex, Color="k", LineWidth=2)
-ylim([0 0.1]);
-disp(num2str(sum(all_data.Reward=="no"))+" incorrect trials")
+mixstart = find(~isnan(keeptab.MixedTrialList),1,"first") - ...
+           find(contains(string(keeptab.Stimulus),"Prac","IgnoreCase",true),...
+           1,"last");
+plot(ones(2,1)*mixstart,get(gca,"YLim"),"LineStyle",":","LineWidth",1.5);
+IDix = strfind(fname,"00-");
+ID = fname(IDix+3:IDix+8);
+title(replace(ID,"_","-"))
+hold off
+% figure
+% plot(all_data.trial(2:end), flex, Color="k", LineWidth=2)
+% ylim([0 0.1]);
+% disp(num2str(sum(all_data.Reward=="no"))+" incorrect trials")
 % trial_table = all_data;

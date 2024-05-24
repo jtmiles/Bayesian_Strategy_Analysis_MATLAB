@@ -56,7 +56,8 @@ end
 % add npad rows to converted_data to help smooth out initial strategy
 % likelihood estimates
 if npad>0
-    t_ixs = randsample(height(converted_data),npad,true);
+    % only grab from first 10 trials - these have equal cue proportions
+    t_ixs = randsample(10,npad,true);
     converted_data = [converted_data(t_ixs,:);converted_data];
 end
 
