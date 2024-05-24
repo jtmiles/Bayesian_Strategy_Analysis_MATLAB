@@ -1,6 +1,6 @@
 [fname, path] = uigetfile("*.csv", "Pick DCCS .csv file");
 cd(path)
-
+rng(1,"twister");
 trialtab = readtable([path fname]); 
 varnames = trialtab.Properties.VariableNames';
 keepcols = ["Trial";"cResp";"TestStimulus_RESP";"TestStimulus_ACC";...
@@ -58,7 +58,8 @@ yticks(0.1:0.2:0.9); xticks(5:10:105)
 cmap = colororder;
 for s = 1:numel(strategies)
     y = table2array(all_data(end,strategies(s)));
-    text(111,y,replace(strategies(s),"pick_"," "),"Color",cmap(s,:))
+    text(height(beh_data)+1,y,replace(strategies(s),"pick_"," "),...
+         "Color",cmap(s,:))
 end
 mixstart = find(~isnan(keeptab.MixedTrialList),1,"first") - ...
            find(contains(string(keeptab.Stimulus),"Prac","IgnoreCase",true),...
